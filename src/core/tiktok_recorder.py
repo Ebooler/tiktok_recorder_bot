@@ -32,9 +32,9 @@ class TikTokRecorder:
 
     def _setup(self):
         """Resolve user/room data and validate prerequisites via network calls."""
-        self.check_country_blacklisted()
-
         if self.mode == Mode.FOLLOWERS:
+            self.check_country_blacklisted()
+
             self.sec_uid = self.tiktok.get_sec_uid()
             if self.sec_uid is None:
                 raise TikTokRecorderError("Failed to retrieve sec_uid.")
@@ -51,6 +51,8 @@ class TikTokRecorder:
 
             if not self.room_id:
                 self.room_id = self.tiktok.get_room_id_from_user(self.user)
+
+            self.check_country_blacklisted()
 
             logger.info(f"USERNAME: {self.user}" + ("\n" if not self.room_id else ""))
             if self.room_id:
