@@ -70,3 +70,19 @@ def test_is_room_alive_skips_room_info_when_check_alive_is_false():
 
     assert api.is_room_alive("123") is False
     assert len(api.http_client.urls) == 1
+
+
+def test_is_room_alive_rejects_null_check_alive_data():
+    api = build_api({"data": None, "status_code": 0})
+
+    assert api.is_room_alive("123") is False
+    assert len(api.http_client.urls) == 1
+
+
+def test_is_room_alive_rejects_null_room_info_data():
+    api = build_api(
+        {"data": [{"alive": True, "room_id": 123}], "status_code": 0},
+        {"data": None, "status_code": 0},
+    )
+
+    assert api.is_room_alive("123") is False

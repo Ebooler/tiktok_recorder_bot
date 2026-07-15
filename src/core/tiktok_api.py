@@ -51,10 +51,13 @@ class TikTokAPI:
             f"?aid=1988&region=CH&room_ids={room_id}&user_is_login=true"
         ).json()
 
-        if "data" not in alive_data or len(alive_data["data"]) == 0:
-            return False
-
-        if not alive_data["data"][0].get("alive", False):
+        data_list = alive_data.get("data")
+        if (
+            not isinstance(data_list, list)
+            or not data_list
+            or not isinstance(data_list[0], dict)
+            or not data_list[0].get("alive", False)
+        ):
             return False
 
         room_info = self.http_client.get(
@@ -68,9 +71,9 @@ class TikTokAPI:
         if status_code != 0:
             return False
 
-        stream_url = room_info.get("data", {}).get("stream_url", {})
+        stream_url = (room_info.get("data") or {}).get("stream_url") or {}
         sdk_stream_data = (
-            stream_url.get("live_core_sdk_data", {})
+            (stream_url.get("live_core_sdk_data") or {})
             .get("pull_data", {})
             .get("stream_data")
         )

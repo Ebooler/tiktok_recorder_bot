@@ -25,15 +25,14 @@ def _merge_cookies(existing_path: Path, new_path: Path) -> None:
     Merge cookies.json from the new version into the existing one.
 
     New keys from the update are added with their default values.
-    Existing keys that already have a non-empty value are kept as-is,
-    so user session data is never overwritten.
+    All existing keys are kept as-is, so user session data is never overwritten.
 
     Args:
         existing_path (Path): Path to the user's current cookies.json.
         new_path (Path): Path to the cookies.json shipped with the new version.
     """
     try:
-        with open(existing_path, "r") as f:
+        with open(existing_path, "r", encoding="utf-8") as f:
             existing = json.load(f)
     except (OSError, json.JSONDecodeError):
         existing = {}
@@ -41,7 +40,7 @@ def _merge_cookies(existing_path: Path, new_path: Path) -> None:
         existing = {}
 
     try:
-        with open(new_path, "r") as f:
+        with open(new_path, "r", encoding="utf-8") as f:
             new_defaults = json.load(f)
     except (OSError, json.JSONDecodeError):
         return
@@ -54,7 +53,7 @@ def _merge_cookies(existing_path: Path, new_path: Path) -> None:
         if key not in merged:
             merged[key] = default
 
-    with open(existing_path, "w") as f:
+    with open(existing_path, "w", encoding="utf-8") as f:
         json.dump(merged, f, indent=2)
         f.write("\n")
 
