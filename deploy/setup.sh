@@ -43,6 +43,12 @@ if [ ! -f src/bot_config.json ]; then
     echo "!! Compila $APP_DIR/src/bot_config.json con i tuoi valori reali prima di avviare il bot."
 fi
 
+# The recorder reads src/cookies.json unconditionally; an empty placeholder
+# is enough when recording from a non-restricted country (no login needed).
+if [ ! -f src/cookies.json ]; then
+    sudo -u "$RUN_USER" cp src/cookies.example.json src/cookies.json
+fi
+
 sudo sed -e "s#__APP_DIR__#$APP_DIR#g" -e "s#__USER__#$RUN_USER#g" \
     deploy/tiktok-bot.service | sudo tee /etc/systemd/system/tiktok-bot.service > /dev/null
 
