@@ -28,6 +28,12 @@ else
 fi
 
 cd "$APP_DIR"
+# If a venv already exists but wasn't built with 3.11 (e.g. a previous run
+# failed before the deadsnakes install above), recreate it from scratch —
+# `python -m venv` does not swap the interpreter of an existing venv.
+if [ -d .venv ] && ! .venv/bin/python --version 2>&1 | grep -q "3\.11"; then
+    sudo -u "$RUN_USER" rm -rf .venv
+fi
 sudo -u "$RUN_USER" python3.11 -m venv .venv
 sudo -u "$RUN_USER" .venv/bin/pip install --upgrade pip
 sudo -u "$RUN_USER" .venv/bin/pip install -e .
