@@ -1,0 +1,15 @@
+[Unit]
+Description=TikTok Live Recorder Telegram Bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=__USER__
+WorkingDirectory=__APP_DIR__/src
+ExecStart=__APP_DIR__/.venv/bin/python bot.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
