@@ -10,7 +10,15 @@ APP_DIR="/opt/tiktok-recorder-bot"
 RUN_USER="${SUDO_USER:-$USER}"
 
 sudo apt-get update -y
-sudo apt-get install -y python3 python3-venv python3-pip ffmpeg git
+sudo apt-get install -y software-properties-common ffmpeg git
+
+# The project requires Python >= 3.11, which Ubuntu 22.04 (jammy) does not
+# ship by default.
+if ! command -v python3.11 >/dev/null 2>&1; then
+    sudo add-apt-repository -y ppa:deadsnakes/ppa
+    sudo apt-get update -y
+fi
+sudo apt-get install -y python3.11 python3.11-venv
 
 if [ -d "$APP_DIR/.git" ]; then
     sudo -u "$RUN_USER" git -C "$APP_DIR" pull
@@ -20,7 +28,7 @@ else
 fi
 
 cd "$APP_DIR"
-sudo -u "$RUN_USER" python3 -m venv .venv
+sudo -u "$RUN_USER" python3.11 -m venv .venv
 sudo -u "$RUN_USER" .venv/bin/pip install --upgrade pip
 sudo -u "$RUN_USER" .venv/bin/pip install -e .
 
