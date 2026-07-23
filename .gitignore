@@ -140,3 +140,12 @@ dmypy.json
 
 .idea/
 .vscode/
+
+# local secrets
+src/cookies.json
+src/telegram.json
+src/bot_config.json
+
+# bot runtime data
+recordings/
+src/*.session
