@@ -20,6 +20,7 @@ from utils.video_management import VideoManagement
 
 SRC_DIR = Path(__file__).resolve().parent
 CONFIG_PATH = SRC_DIR / "bot_config.json"
+COOKIES_PATH = SRC_DIR / "cookies.json"
 RECORDINGS_DIR = SRC_DIR.parent / "recordings"
 
 TIKTOK_URL_RE = re.compile(r"(https?://)?(www\.|vm\.)?tiktok\.com\S*")
@@ -249,8 +250,33 @@ async def start_handler(event):
         "• un room_id numerico\n\n"
         "Se è già live ti chiedo la durata massima di registrazione.\n"
         "Se non è live, posso avvisarti e avviare la registrazione automaticamente appena inizia.\n\n"
-        "/status per vedere cosa è attivo, /stop per fermare."
+        "/status per vedere cosa è attivo, /stop per fermare.\n"
+        "/setcookie <valore> per aggiornare il cookie di sessione TikTok "
+        "(serve solo per live private/con restrizioni)."
     )
+
+
+@client.on(events.NewMessage(pattern="/setcookie"))
+async def setcookie_handler(event):
+    if not is_allowed(event):
+        return
+
+    value = event.raw_text[len("/setcookie"):].strip()
+    await event.delete()  # don't leave the raw cookie sitting in the chat
+
+    if not value:
+        await client.send_message(
+            event.chat_id,
+            "Uso: /setcookie <valore_sessionid_ss>\n"
+            "(ho comunque cancellato il messaggio per sicurezza)",
+        )
+        return
+
+    cookies = json.loads(COOKIES_PATH.read_text(encoding="utf-8"))
+    cookies["sessionid_ss"] = value
+    COOKIES_PATH.write_text(json.dumps(cookies, indent=2), encoding="utf-8")
+
+    await client.send_message(event.chat_id, "Cookie aggiornato.")
 
 
 @client.on(events.NewMessage(pattern="/status"))
@@ -378,6 +404,7 @@ async def set_commands():
             BotCommand("start", "Istruzioni"),
             BotCommand("status", "Registrazioni/monitoraggi attivi"),
             BotCommand("stop", "Ferma una registrazione o un monitoraggio"),
+            BotCommand("setcookie", "Aggiorna il cookie di sessione TikTok"),
         ],
     ))
 
